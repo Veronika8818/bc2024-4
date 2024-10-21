@@ -46,6 +46,22 @@ const cacheDir = path.resolve(options.cache);
     }
   });
 
+ else if (method === 'PUT') {
+    let body = [];
+    req.on('data', chunk => {
+      body.push(chunk);
+    }).on('end', async () => {
+      try {
+        const buffer = Buffer.concat(body); 
+        await fs.writeFile(filePath, buffer); 
+        res.writeHead(201, { 'Content-Type': 'text/plain' });
+        res.end('File created or replaced\n');
+      } catch (err) {
+        res.writeHead(500, { 'Content-Type': 'text/plain' });
+        res.end('Error writing file\n');
+      }
+    });
+  }
   
   server.listen(options.port, options.host, () => {
     console.log(`Server running at http://${options.host}:${options.port}/`);
